@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.29.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.29.0/mapbox-gl.css' rel='stylesheet' />
+    <link href='https://www.mapbox.com/base/latest/base.css' rel='stylesheet' />
+    <script src="https://d3js.org/d3-queue.v3.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+        
+        #reset {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 999;
+        }
+    </style>
+    <link rel="canonical" href="https://labs.mapbox.com/bites/00321/">
+</head>
+
+<body>
+    <a href='#' id='reset' class='button fill-darken1'>reset</a>
+    <div id='map'></div>
+    <div class='clearfix contain'>
+        <div class='pin-topright space-right2 space-top2 width28 pad2x pad1y round fill-white'>
+            <div class='small pad2y keyline-bottom'>
+                <div class='fill-cyan dark space-top1_5 fl pad0 center dot'> <span class='icon car' /></div>
+                <div class='strong space-left4'>Driving directions</div>
+                <div class='quiet space-left4'>Routes on the fastest roads and around traffic.</div>
+            </div>
+            <div class='small pad2y keyline-bottom'>
+                <div class='fl space-top1_5 pad0 fill-mustard dark center dot'> <span class='icon walk' /></div>
+                <div class='strong space-left4'>Walking directions</div>
+                <div class='quiet space-left4'>Finds the shortest path using sidewalks and trails.</div>
+            </div>
+            <div class='small pad2y'>
+                <div class='fl space-top1_5 pad0 fill-green dark center dot'> <span class='icon bike' /></div>
+                <div class='strong space-left4'>Cycling directions</div>
+                <div class='quiet space-left4'>Chooses the safest routes by favoring streets with bike lanes.</div>
+            </div>
+        </div>
+        <div>
+
+            <script>
+                document.getElementById('reset').onclick = clearMap;
+
+                mapboxgl.accessToken = 'pk.eyJ1IjoiYWFyb25saWRtYW4iLCJhIjoiNTVucTd0TSJ9.wVh5WkYXWJSBgwnScLupiQ';
+
+                var map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/light-v9',
+                    center: [-77.002, 38.891],
+                    zoom: 13,
+                    hash: true
+                });
+
+                map.scrollZoom.disable();
+                var nav = new mapboxgl.NavigationControl();
+                map.addControl(nav, 'top-left');
+
+                var start = [-77.04753807398001, 38.90378612315598];
+                var end = [-77.02701979834258, 38.91768142447788];
+
+                var api = 'https://api.mapbox.com/directions/v5/';
+                var profiles = {
+                    driving: {
+                        color: '#3bb2d0'
+                    },
+                    cycling: {
+                        color: '#56b881'
+                    },
+                    walking: {
+                        color: '#fbb03b'
+                    }
+                };
+
+                map.on('load', go);
+                map.on('click', go);
+
+                function go(e) {
+                    if (e.type === 'click' && !start) start = [e.lngLat.lng, e.lngLat.lat];
+
+                    if (!map.getSource('start')) {
+                        map.addSource('start', {
+                            type: 'geojson',
+                            data: {
+                                type: 'Point',
+                                coordinates: [start[0], start[1]]
+                            }
+                        });
+
+                        map.addLayer({
+                            'id': 'start',
+                            'type': 'circle',
+                            'source': 'start',
+                            'layout': {},
+                            'paint': {
+                                'circle-radius': 10,
+                                'circle-color': profiles.driving.color
+                            }
+                        });
+                    }
+
+                    if (e.type === 'click') {
+                        end = [e.lngLat.lng, e.lngLat.lat];
+                        if (end.toString() === start.toString()) {
+                            end = null;
+                            return
+                        }
+                    }
+
+                    map.addSource('end', {
+                        type: 'geojson',
+                        data: {
+                            type: 'Point',
+                            coordinates: [end[0], end[1]]
+                        }
+                    });
+
+                    map.addLayer({
+                        'id': 'end',
+                        'type': 'circle',
+                        'source': 'end',
+                        'layout': {},
+                        'paint': {
+                            'circle-radius': 10,
+                            'circle-color': profiles.driving.color
+                        }
+                    });
+
+                    if (start && end) requestProfiles(start, end, Object.keys(profiles));
+                }
+
+                function requestProfiles() {
+                    var queue = d3.queue();
+
+                    Object.keys(profiles).forEach(function(profile) {
+                        queue.defer(route, start, end, profile);
+                    });
+
+                    queue.awaitAll(function(error, results) {
+                        results.forEach(function(result) {
+                            if (result && result.profile) {
+                                profiles[result.profile].route = result.routes[0];
+                            }
+                        })
+                        draw();
+                    });
+
+                    function route(start, end, profile, cb) {
+                        var startEnd = encodeURIComponent(start + ';' + end);
+                        var request = new XMLHttpRequest();
+                        var url = api + 'mapbox/' + profile + '/' + startEnd + '.json?access_token=pk.eyJ1IjoiYWFyb25saWRtYW4iLCJhIjoiNTVucTd0TSJ9.wVh5WkYXWJSBgwnScLupiQ&geometries=geojson&overview=full';
+
+                        request.abort();
+                        request.open('GET', url, true);
+                        request.send();
+
+                        request.onload = function() {
+                            if (request.status >= 200 && request.status < 400) {
+                                var data = JSON.parse(request.responseText);
+                                if (data.error) {
+                                    console.log('error');
+                                    return clear();
+                                }
+                                data.profile = profile;
+                                return cb(null, data);
+                            } else {
+                                // never actually error
+                                return cb(null, false);
+                            }
+                        };
+
+                        request.onerror = function() {
+                            return cb(null, false);
+                        };
+                    }
+                }
+
+                function draw() {
+                    // I know
+                    var bounds = new mapboxgl.LngLatBounds(start, end);
+
+                    Object.keys(profiles).forEach(function(profile, idx) {
+                        map.addSource(profile + ' route', {
+                            type: 'geojson',
+                            data: profiles[profile].route.geometry
+                        });
+                        var route = {
+                            'id': profile + ' route',
+                            'type': 'line',
+                            'source': profile + ' route',
+                            'layout': {
+                                'line-join': 'round',
+                                'line-cap': 'round'
+                            },
+                            'paint': {
+                                'line-color': profiles[profile].color,
+                                'line-width': 4,
+                                'line-opacity': 1
+                            }
+                        };
+                        if (profile == 'cycling') route.paint['line-dasharray'] = [2.5, 2.5];
+                        if (profile == 'walking') route.paint['line-dasharray'] = [0, 1.5];
+                        map.addLayer(route, 'start');
+
+                        var result = profiles[profile].route.geometry.coordinates.reduce(function(previous, current) {
+                            return bounds.extend(current);
+                        });
+                    });
+
+                    map.fitBounds(bounds, {
+                        padding: 100
+                    });
+                }
+
+                function clearMap() {
+                    Object.keys(profiles).forEach(function(profile) {
+                        if (map.getLayer(profile + ' route')) map.removeLayer(profile + ' route');
+                        if (map.getSource(profile + ' route')) map.removeSource(profile + ' route');
+                    });
+
+                    ['start', 'end'].forEach(function(item) {
+                        if (map.getLayer(item)) map.removeLayer(item);
+                        if (map.getSource(item)) map.removeSource(item);
+                    });
+
+                    start = null;
+                    end = null;
+                }
+            </script>
+
+</body>
+
+</html>

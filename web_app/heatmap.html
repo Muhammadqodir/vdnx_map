@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/main.css">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://vdnh.ru/local/js/vdnh_events/places.js"></script>
+
+    <!-- Import Mapbox GL Directions -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.0.2/mapbox-gl-directions.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.0.2/mapbox-gl-directions.css" type="text/css" />
+
+</head>
+
+<body>
+
+    <div id='map' class="map_box"></div>
+    <script>
+        var points = [{
+            'type': "Feature",
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [37.6376145, 55.82626224]
+            }
+        }, {
+            'type': "Feature",
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [37.63190639, 55.83163773]
+            }
+        }, ];
+
+
+        var api = 'https://api.mapbox.com/directions/v5/';
+
+        function addRoute() {
+            var points_str = "";
+            points.forEach((point, index) => {
+                console.log(point);
+                console.log(index);
+                points_str += point["geometry"]["coordinates"][0] + "," + point["geometry"]["coordinates"][1];
+                if (index < points.length - 1) {
+                    points_str += ";"
+                }
+            });
+            var request = new XMLHttpRequest();
+            var url = api + 'mapbox/walking/' + points_str + '?access_token=' + mapboxgl.accessToken + '&geometries=geojson&overview=full';
+            console.log(url);
+            request.abort();
+            request.open('GET', url, true);
+            request.send();
+
+            request.onload = function() {
+                if (request.status >= 200 && request.status < 400) {
+                    var data = JSON.parse(request.responseText);
+                    if (data.error) {
+                        console.log('error');
+                        return clear();
+                    }
+                    console.log(data.routes[0]);
+                    map.addSource('route', {
+                        type: 'geojson',
+                        data: data.routes[0].geometry
+                    });
+                    var route = {
+                        'id': 'route',
+                        'type': 'line',
+                        'source': 'route',
+                        'layout': {
+                            'line-join': 'round',
+                            'line-cap': 'round'
+                        },
+                        'paint': {
+                            'line-color': 'black',
+                            'line-width': 4,
+                            'line-opacity': 1,
+                            'line-dasharray': [2.5, 2.5]
+                        }
+                    };
+                    map.addLayer(route);
+                } else {
+                    // never actually error
+                    return cb(null, false);
+                }
+            };
+
+            request.onerror = function() {
+                return cb(null, false);
+            };
+        }
+
+        async function readDataJson() {
+            response = await fetch('./export.json');
+            json = await response.json();
+            var places = json["types"];
+            var result = [];
+            Object.keys(places).forEach(element => {
+                console.log(places[element]["NAME"]);
+            });
+            return result;
+        }
+
+        function getData() {
+            Object.keys(places).forEach(element => {
+                if (places[element]["properties"]["tickets_link"] != "") {
+                    console.log(places[element]["properties"]["tickets_link"]);
+                }
+            });
+        }
+
+        function readData() {
+            var result = [];
+            Object.keys(places).forEach(element => {
+                if (true) {
+                    result.push(places[element])
+                }
+            });
+            return result;
+        }
+        const monument = [37.6170995, 55.8352872];
+        mapboxgl.accessToken = 'pk.eyJ1IjoibXVoYW1tYWRxb2RpciIsImEiOiJjanY3cTVsMG4waWp2NDRwZmptNzU1cHdxIn0.zL3ucnAwfCyQRHlYGCbqmw';
+        const map = new mapboxgl.Map({
+            container: 'map', // container ID
+            style: 'https://vdnh.ru/gis/api/rpc/get_style?style_number=1', // style URL
+            center: [37.633186, 55.829537], // starting position [lng, lat]
+            zoom: 15, // starting zoom
+            projection: 'globe' // display the map as a 3D globe
+        });
+        map.on('load', () => {
+
+            map.addSource('places', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'FeatureCollection',
+                    'features': points
+                }
+            });
+            // Add a layer showing the places.
+            map.addLayer({
+                'id': 'places',
+                'type': 'heatmap',
+                'source': 'places',
+                paint: {
+                    'heatmap-radius': 15,
+                    'heatmap-intensity': 0.1
+                },
+            });
+            addRoute();
+        });
+        map.on('click', (e) => {
+            points.push({
+                'type': "Feature",
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [e.lngLat.lng, e.lngLat.lat]
+                },
+                'id': 242,
+                'order': "250",
+            });
+            map.getSource('places').setData({
+                'type': 'FeatureCollection',
+                'features': points
+            });
+        });
+
+        function runSocket() {
+            let websocketClient = new WebSocket("ws://localhost:5555");
+            websocketClient.onopen = () => {
+                websocketClient.send("I'm connected :)");
+            }
+            websocketClient.onmessage = (message) => {
+                json = JSON.parse(message.data);
+                if (json.length > 0) {
+
+                    points = []
+                    for (const element of json) {
+                        points.push({
+                            'type': "Feature",
+                            'geometry': {
+                                'type': 'Point',
+                                'coordinates': [37.637307028421446 - (element[0] / 1000000), 55.825954790376755 + (element[1] / 1000000)]
+                            },
+                            'id': 242,
+                            'order': "250",
+                        });
+                    }
+                    console.log(points);
+                    map.getSource('places').setData({
+                        'type': 'FeatureCollection',
+                        'features': points
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

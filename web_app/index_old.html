@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ВДНХ</title>
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <!-- /Bootstrap -->
+
+    <!-- MapBox -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css' rel='stylesheet' />
+    <!-- /MapBox -->
+
+    <!-- Css -->
+    <link rel="stylesheet" href="./css/style.css">
+    <!-- /Css -->
+</head>
+
+<body>
+    <!-- Navbar -->
+    <div style="position: sticky;" id="navbar"></div>
+    <!-- /Navbar -->
+
+
+
+
+    <!-- Modal -->
+    <div class="modal fade " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h3 style="color: red; padding-left: 1rem;font-family: 'vdnh bold font';" class="modal-title" id="exampleModalLabel">Выберите до пяти интересов
+                        </h3>
+                        <h5 class="modal-title" style="padding-left: 1rem;font-family: 'vdnh regular font'" id="exampleModalLabel">Это поможет получать более точные и интересные рекомендации
+                        </h5>
+                    </div>
+
+                </div>
+                <div class="modal-body">
+                    <div class="d-grid gap-3">
+                        <div class="row gy-3 justify-content-md-center" id="q_items">
+                            <!-- Added  -->
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" data-bs-dismiss="modal">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
+                            class="bi bi-arrow-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h3 style="color: red; padding-left: 1rem;font-family: 'vdnh bold font';" class="modal-title" id="exampleModalLabel">Выберите до пяти интересов
+                        </h3>
+                        <h5 class="modal-title" style="padding-left: 1rem;font-family: 'vdnh regular font'" id="exampleModalLabel">Это поможет получать более точные и интересные рекомендации
+                        </h5>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="d-grid gap-3">
+                        <div class="row gy-3 justify-content-md-center">
+                            <div class="col-lg-3 col-md-4 col-sm-4 col-4">
+                                <div class='pizdes' style="text-align: center;">
+                                    <input onclick="return OptionsSelected(this)" type="checkbox" class="btn-check chch" id="btn-1" autocomplete="off">
+                                    <label id="knopka" class="btn btn-outline-danger btnn" for="btn-1">
+                                        <div>
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                style="color:rgba(112, 112, 112, 0.826)" viewBox="0 0 50 50"
+                                                fill="#fffffe">
+                                                <path
+                                                    d="M 0.875 2 C 0.371094 2.0625 -0.00390625 2.492188 0 3 L 0 41 C -0.00390625 41.386719 0.214844 41.738281 0.5625 41.90625 L 12.5625 47.90625 C 12.839844 48.039063 13.160156 48.039063 13.4375 47.90625 L 25.03125 42.09375 L 37.59375 47.90625 C 37.875 48.03125 38.199219 48.019531 38.46875 47.875 L 49.46875 41.875 C 49.792969 41.703125 49.996094 41.367188 50 41 L 50 3 C 49.996094 2.652344 49.8125 2.328125 49.511719 2.148438 C 49.210938 1.96875 48.839844 1.960938 48.53125 2.125 L 37.96875 7.875 L 25.40625 2.09375 C 25.140625 1.96875 24.828125 1.96875 24.5625 2.09375 L 13 7.875 L 1.4375 2.09375 C 1.261719 2.007813 1.066406 1.976563 0.875 2 Z M 25.03125 4.09375 L 37.59375 9.90625 C 37.875 10.03125 38.199219 10.019531 38.46875 9.875 L 48 4.6875 L 48 40.40625 L 37.96875 45.875 L 25.40625 40.09375 C 25.140625 39.96875 24.828125 39.96875 24.5625 40.09375 L 13 45.875 L 2 40.375 L 2 4.625 L 12.5625 9.90625 C 12.839844 10.039063 13.160156 10.039063 13.4375 9.90625 Z M 25.1875 11.5 C 21.488281 11.5 19 13.789063 18.5 17.1875 C 18.5 17.386719 18.613281 17.59375 18.8125 17.59375 L 21.09375 18 C 21.292969 18 21.5 17.886719 21.5 17.6875 C 21.898438 15.488281 23.1875 14.3125 25.1875 14.3125 C 27.289063 14.3125 28.6875 15.59375 28.6875 17.59375 C 28.6875 18.894531 28.300781 19.707031 27 21.40625 L 24.59375 24.6875 C 23.792969 25.6875 23.5 26.507813 23.5 27.90625 L 23.5 29.40625 C 23.5 29.605469 23.710938 29.8125 23.8125 29.8125 L 26.1875 29.8125 C 26.488281 29.8125 26.59375 29.605469 26.59375 29.40625 L 26.59375 28.3125 C 26.59375 27.113281 26.800781 26.59375 27.5 25.59375 L 29.90625 22.3125 C 31.105469 20.613281 31.6875 19.292969 31.6875 17.59375 C 31.6875 13.992188 29.085938 11.5 25.1875 11.5 Z M 23.8125 32.5 C 23.511719 32.5 23.40625 32.707031 23.40625 32.90625 L 23.40625 36 C 23.40625 36.300781 23.613281 36.40625 23.8125 36.40625 L 26.5 36.40625 C 26.800781 36.40625 26.90625 36.199219 26.90625 36 L 26.90625 32.90625 C 26.90625 32.605469 26.699219 32.5 26.5 32.5 Z"
+                                                    fill="currentColor" />
+                                            </svg>
+                                        </div>
+                                    </label><br>
+                                </div>
+
+                                <div style="text-align: center;" class=" textModelContent">
+                                    <span style="color:grey" ; "font-family: 'vdnh categories font';">Пешком</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-4 col-4">
+                                <div class='pizdes' style="text-align: center;">
+                                    <input onclick="return OptionsSelected(this)" type="checkbox" class="btn-check chch" id="btn-2" autocomplete="off">
+                                    <label id="knopka" class="btn btn-outline-danger btnn" for="btn-2">
+                                        <div>
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                style="color:rgba(112, 112, 112, 0.826)" viewBox="0 0 50 50"
+                                                fill="#fffffe">
+                                                <path
+                                                    d="M 0.875 2 C 0.371094 2.0625 -0.00390625 2.492188 0 3 L 0 41 C -0.00390625 41.386719 0.214844 41.738281 0.5625 41.90625 L 12.5625 47.90625 C 12.839844 48.039063 13.160156 48.039063 13.4375 47.90625 L 25.03125 42.09375 L 37.59375 47.90625 C 37.875 48.03125 38.199219 48.019531 38.46875 47.875 L 49.46875 41.875 C 49.792969 41.703125 49.996094 41.367188 50 41 L 50 3 C 49.996094 2.652344 49.8125 2.328125 49.511719 2.148438 C 49.210938 1.96875 48.839844 1.960938 48.53125 2.125 L 37.96875 7.875 L 25.40625 2.09375 C 25.140625 1.96875 24.828125 1.96875 24.5625 2.09375 L 13 7.875 L 1.4375 2.09375 C 1.261719 2.007813 1.066406 1.976563 0.875 2 Z M 25.03125 4.09375 L 37.59375 9.90625 C 37.875 10.03125 38.199219 10.019531 38.46875 9.875 L 48 4.6875 L 48 40.40625 L 37.96875 45.875 L 25.40625 40.09375 C 25.140625 39.96875 24.828125 39.96875 24.5625 40.09375 L 13 45.875 L 2 40.375 L 2 4.625 L 12.5625 9.90625 C 12.839844 10.039063 13.160156 10.039063 13.4375 9.90625 Z M 25.1875 11.5 C 21.488281 11.5 19 13.789063 18.5 17.1875 C 18.5 17.386719 18.613281 17.59375 18.8125 17.59375 L 21.09375 18 C 21.292969 18 21.5 17.886719 21.5 17.6875 C 21.898438 15.488281 23.1875 14.3125 25.1875 14.3125 C 27.289063 14.3125 28.6875 15.59375 28.6875 17.59375 C 28.6875 18.894531 28.300781 19.707031 27 21.40625 L 24.59375 24.6875 C 23.792969 25.6875 23.5 26.507813 23.5 27.90625 L 23.5 29.40625 C 23.5 29.605469 23.710938 29.8125 23.8125 29.8125 L 26.1875 29.8125 C 26.488281 29.8125 26.59375 29.605469 26.59375 29.40625 L 26.59375 28.3125 C 26.59375 27.113281 26.800781 26.59375 27.5 25.59375 L 29.90625 22.3125 C 31.105469 20.613281 31.6875 19.292969 31.6875 17.59375 C 31.6875 13.992188 29.085938 11.5 25.1875 11.5 Z M 23.8125 32.5 C 23.511719 32.5 23.40625 32.707031 23.40625 32.90625 L 23.40625 36 C 23.40625 36.300781 23.613281 36.40625 23.8125 36.40625 L 26.5 36.40625 C 26.800781 36.40625 26.90625 36.199219 26.90625 36 L 26.90625 32.90625 C 26.90625 32.605469 26.699219 32.5 26.5 32.5 Z"
+                                                    fill="currentColor" />
+                                            </svg>
+                                        </div>
+                                    </label><br>
+                                </div>
+
+                                <div style="text-align: center;" class=" textModelContent">
+                                    <span style="color:grey" ; "font-family: 'vdnh categories font';">Самокат</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-4 col-4">
+                                <div class='pizdes' style="text-align: center;">
+                                    <input onclick="return OptionsSelected(this)" type="checkbox" class="btn-check chch" id="btn-3" autocomplete="off">
+                                    <label id="knopka" class="btn btn-outline-danger btnn" for="btn-3">
+                                        <div>
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                style="color:rgba(112, 112, 112, 0.826)" viewBox="0 0 50 50"
+                                                fill="#fffffe">
+                                                <path
+                                                    d="M 0.875 2 C 0.371094 2.0625 -0.00390625 2.492188 0 3 L 0 41 C -0.00390625 41.386719 0.214844 41.738281 0.5625 41.90625 L 12.5625 47.90625 C 12.839844 48.039063 13.160156 48.039063 13.4375 47.90625 L 25.03125 42.09375 L 37.59375 47.90625 C 37.875 48.03125 38.199219 48.019531 38.46875 47.875 L 49.46875 41.875 C 49.792969 41.703125 49.996094 41.367188 50 41 L 50 3 C 49.996094 2.652344 49.8125 2.328125 49.511719 2.148438 C 49.210938 1.96875 48.839844 1.960938 48.53125 2.125 L 37.96875 7.875 L 25.40625 2.09375 C 25.140625 1.96875 24.828125 1.96875 24.5625 2.09375 L 13 7.875 L 1.4375 2.09375 C 1.261719 2.007813 1.066406 1.976563 0.875 2 Z M 25.03125 4.09375 L 37.59375 9.90625 C 37.875 10.03125 38.199219 10.019531 38.46875 9.875 L 48 4.6875 L 48 40.40625 L 37.96875 45.875 L 25.40625 40.09375 C 25.140625 39.96875 24.828125 39.96875 24.5625 40.09375 L 13 45.875 L 2 40.375 L 2 4.625 L 12.5625 9.90625 C 12.839844 10.039063 13.160156 10.039063 13.4375 9.90625 Z M 25.1875 11.5 C 21.488281 11.5 19 13.789063 18.5 17.1875 C 18.5 17.386719 18.613281 17.59375 18.8125 17.59375 L 21.09375 18 C 21.292969 18 21.5 17.886719 21.5 17.6875 C 21.898438 15.488281 23.1875 14.3125 25.1875 14.3125 C 27.289063 14.3125 28.6875 15.59375 28.6875 17.59375 C 28.6875 18.894531 28.300781 19.707031 27 21.40625 L 24.59375 24.6875 C 23.792969 25.6875 23.5 26.507813 23.5 27.90625 L 23.5 29.40625 C 23.5 29.605469 23.710938 29.8125 23.8125 29.8125 L 26.1875 29.8125 C 26.488281 29.8125 26.59375 29.605469 26.59375 29.40625 L 26.59375 28.3125 C 26.59375 27.113281 26.800781 26.59375 27.5 25.59375 L 29.90625 22.3125 C 31.105469 20.613281 31.6875 19.292969 31.6875 17.59375 C 31.6875 13.992188 29.085938 11.5 25.1875 11.5 Z M 23.8125 32.5 C 23.511719 32.5 23.40625 32.707031 23.40625 32.90625 L 23.40625 36 C 23.40625 36.300781 23.613281 36.40625 23.8125 36.40625 L 26.5 36.40625 C 26.800781 36.40625 26.90625 36.199219 26.90625 36 L 26.90625 32.90625 C 26.90625 32.605469 26.699219 32.5 26.5 32.5 Z"
+                                                    fill="currentColor" />
+                                            </svg>
+                                        </div>
+                                    </label><br>
+                                </div>
+
+                                <div style="text-align: center;" class=" textModelContent">
+                                    <span style="color:grey" ; "font-family: 'vdnh categories font';">Велик</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" data-bs-dismiss="modal">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
+                            class="bi bi-arrow-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Map Box Container -->
+
+    <div id='map' class="map_box">
+        <div id="left" class="sidebar flex-center left collapsed">
+
+            <div class="sidebar-content rounded-rect flex-center">
+                <div class="sidebar-toggle rounded-rect left" onclick="toggleSidebar('left')">
+                    &rarr;
+                </div>
+            </div>
+            <div style="background-color: #FAF2EF;" class="row-3 align-items-start sidebar-content">
+
+                <div class="row-12">
+                    <h6 style="margin:8px 0px 8px 16px;color: #262626;;font-size: 32px;">Фильтры</h6>
+                </div>
+                <div class="btnMar" style="padding: 8px 16px 8px  16px ;margin-bottom: 8px; background-color: white;">
+
+                    <div class="row-12">
+                        <div class="col-12">
+                            <h6 style="margin-bottom:16px;">Когда</h6>
+                        </div>
+                        <div class="col">
+                            <input type="checkbox" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off">
+                            <label class=" btnSideBar btnModal btn btn-outline-danger " for="btnradio1">
+                                <p style="margin-bottom: 0rem;">Сегодня</p>
+                            </label>
+
+                            <input type="checkbox" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+                            <label class="btnSideBar btnModal btn btn-outline-danger" for="btnradio2">
+                                <p>Завтра</p>
+                            </label>
+
+                            <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                            <label class="btnSideBar btnModal btn btn-outline-danger" for="btnradio3">
+                                <p>На выходных </p>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="padding: 8px 16px 8px  16px ;margin-bottom: 8px; background-color: white;">
+
+
+                    <div class="col-12">
+                        <h6 style="margin-bottom:16px;">Во сколько</h6>
+                    </div>
+                    <div class="col">
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off">
+                        <label class=" btnSideBar btnModal btn btn-outline-danger " for="btnradio1">
+                            <p style="margin-bottom: 0rem;">Сейчас</p>
+                        </label>
+
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+                        <label class="btnSideBar btnModal btn btn-outline-danger" for="btnradio2">
+                            <p>Утро</p>
+                        </label>
+
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                        <label class="btnSideBar btnModal btn btn-outline-danger" for="btnradio3">
+                            <p>День </p>
+                        </label>
+
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                        <label class="btnSideBar btnModal btn btn-outline-danger" for="btnradio3">
+                            <p>Вечер </p>
+                        </label>
+                    </div>
+
+                </div>
+
+                <div style="padding: 8px 16px 8px  16px ; margin-bottom: 8px;;background-color: white;">
+                    <div class="col-12">
+                        <h6 style="margin-bottom:16px;">Стоимость</h6>
+                    </div>
+                    <div class="col">
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off">
+                        <label class=" btnSideBar btnModal btn btn-outline-danger " for="btnradio1">
+                            <p style="margin-bottom: 0rem;">Бесплатно</p>
+                        </label>
+
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+                        <label class="btnSideBar btnModal btn btn-outline-danger" for="btnradio2">
+                            <p>$</p>
+                        </label>
+
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                        <label class="btnSideBar btnModal btn btn-outline-danger" for="btnradio3">
+                            <p>$$ </p>
+                        </label>
+
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                        <label class="btnSideBar btnModal btn btn-outline-danger" for="btnradio3">
+                            <p>$$$ </p>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="padding: 8px 16px 8px  16px ;margin-bottom: 8px; background-color: white;">
+                    <div class="col-12">
+                        <h6 style="margin-bottom:16px;">Категории</h6>
+                    </div>
+                    <div class="col">
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off">
+                        <label class=" btnSideBar btnModal moreBtn btn btn-outline-danger " for="btnradio1">
+                            <p style="margin-bottom: 0rem;">Выставка</p>
+                        </label>
+
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+                        <label class="btnSideBar btnModal moreBtn btn btn-outline-danger" for="btnradio2">
+                            <p>Детям</p>
+                        </label>
+
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                        <label class="btnSideBar btnModal moreBtn btn btn-outline-danger" for="btnradio3">
+                            <p>Интересно</p>
+                        </label>
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                        <label class="btnSideBar btnModal moreBtn btn btn-outline-danger" for="btnradio3">
+                            <p>Концерты и шоу</p>
+                        </label>
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                        <label class="btnSideBar btnModal moreBtn btn btn-outline-danger" for="btnradio3">
+                            <p>Ярмарки</p>
+                        </label>
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                        <label class="btnSideBar btnModal moreBtn btn btn-outline-danger" for="btnradio3">
+                            <p>Спорт</p>
+                        </label>
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                        <label class="btnSideBar btnModal moreBtn btn btn-outline-danger" for="btnradio3">
+                            <p>Образование</p>
+                        </label>
+                        <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                        <label class="btnSideBar btnModal moreBtn btn btn-outline-danger" for="btnradio3">
+                            <p>Ярмарки</p>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="padding: 8px 16px 8px  16px ;margin-bottom: 8px; background-color: white;">
+                    <div class="row-12">
+                        <div class="col-12">
+                            <h6 style="margin-bottom:16px;">Удобства</h6>
+                        </div>
+                        <div class="col-12">
+                            <input type="checkbox" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off">
+                            <label class=" btnSideBar btnModal moreBtn btn btn-outline-danger " for="btnradio1">
+                                <p style="margin-bottom: 0rem;">Выставка</p>
+                            </label>
+
+                            <input type="checkbox" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+                            <label class="btnSideBar btnModal moreBtn btn btn-outline-danger" for="btnradio2">
+                                <p>Детям</p>
+                            </label>
+
+                            <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                            <label class="btnSideBar btnModal moreBtn btn btn-outline-danger" for="btnradio3">
+                                <p>Интересно</p>
+                            </label>
+                            <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                            <label class="btnSideBar btnModal moreBtn btn btn-outline-danger" for="btnradio3">
+                                <p>Концерты и шоу</p>
+                            </label>
+                            <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                            <label class="btnSideBar btnModal moreBtn btn btn-outline-danger" for="btnradio3">
+                                <p>Ярмарки</p>
+                            </label>
+                            <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                            <label class="btnSideBar btnModal moreBtn btn btn-outline-danger" for="btnradio3">
+                                <p>Спорт</p>
+                            </label>
+                            <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                            <label class="btnSideBar btnModal moreBtn btn btn-outline-danger" for="btnradio3">
+                                <p>Образование</p>
+                            </label>
+                            <input type="checkbox" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                            <label class="btnSideBar btnModal moreBtn btn btn-outline-danger" for="btnradio3">
+                                <p>Ярмарки</p>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 16px;" class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button class="btn btn-danger me-md-2" type="button">Button</button>
+                    <button class="btn btn-success" type="button">Button</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- /Map Box Container -->
+
+
+    <!-- Map Box function -->
+    <script>
+        async function readData() {
+            response = await fetch('./export.json');
+            json = await response.json();
+            var places = json["places"];
+            var result = [];
+            Object.keys(places).forEach(element => {
+                if (places[element]["coordinates"] != undefined) {
+                    result.push({
+                        'type': 'Feature',
+                        'properties': {
+                            'description': places[element]["title"] + "",
+                            'map_title': places[element]["map_title"],
+                            'map_icon': places[element]["icon"],
+                            'picture': places[element]["pic"],
+                            'type': places[element]["type"],
+                            'colorText': places[element]["color"],
+                            'schedule': places[element]["schedule"]["left"],
+                        },
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': places[element]["coordinates"]
+                        }
+                    })
+                }
+            });
+            return result;
+        }
+        const monument = [37.6170995, 55.8352872];
+        mapboxgl.accessToken = 'pk.eyJ1IjoibXVoYW1tYWRxb2RpciIsImEiOiJjanY3cTVsMG4waWp2NDRwZmptNzU1cHdxIn0.zL3ucnAwfCyQRHlYGCbqmw';
+        const map = new mapboxgl.Map({
+            container: 'map', // container ID
+            style: 'https://vdnh.ru/gis/api/rpc/get_style?style_number=1', // style URL
+            center: [37.633186, 55.829537], // starting position [lng, lat]
+            zoom: 15, // starting zoom
+            projection: 'globe' // display the map as a 3D globe
+        });
+
+
+        map.on('load', () => {
+
+            readData().then((val) => {
+                console.log(val);
+
+                map.addSource('places', {
+                    'type': 'geojson',
+                    'data': {
+                        'type': 'FeatureCollection',
+                        'features': val
+                    }
+                });
+
+
+
+
+                // Add a layer showing the places.
+                map.addLayer({
+                    'id': 'places',
+                    'type': 'circle',
+                    'source': 'places',
+                    'paint': {
+                        'circle-color': '#4264fb',
+                        'circle-radius': 4,
+                        'circle-stroke-width': 2,
+                        'circle-stroke-color': '#ffffff'
+                    }
+                });
+
+                map.addLayer({
+                    'id': 'places_marker',
+                    'type': 'symbol',
+                    'source': 'places',
+                    'paint': {
+                        'text-color': '#262626',
+                        'text-halo-color': '#ffffff',
+                        'text-halo-width': 1,
+                    },
+                    'layout': {
+                        'icon-allow-overlap': false,
+                        'text-allow-overlap': false,
+                        'icon-image': '{map_icon}',
+                        'text-field': '{map_title}',
+                        'text-size': 13,
+                        'text-anchor': 'top',
+                        'icon-anchor': 'bottom',
+                        'text-offset': [
+                            0, 0
+                        ],
+                        'text-font': [
+                            'Suisse-Intl-Book'
+                        ],
+                    },
+                });
+
+                map.addLayer({
+                    'id': 'places-active',
+                    'type': 'symbol',
+                    'source': 'places',
+                    'paint': {
+                        'text-color': '#262626',
+                        'text-halo-color': '#ffffff',
+                        'text-halo-width': 1,
+                    },
+                    'layout': {
+                        'icon-allow-overlap': true,
+                        'text-allow-overlap': true,
+                        'icon-image': '{icon}-active',
+                        'text-field': '{map_title}',
+                        'text-size': 13,
+                        'text-anchor': 'top',
+                        'icon-anchor': 'bottom',
+                        'text-font': [
+                            'Suisse-Intl-Book'
+                        ],
+                    },
+                    'filter': [
+                        '==', ['get', 'active'], true
+                    ]
+                });
+            })
+
+
+            // Create a popup, but don't add it to the map yet.
+            const popup = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: false,
+
+            })
+
+
+
+            map.on('mouseenter', 'places', (e) => {
+                // Change the cursor style as a UI indicator.
+                map.getCanvas().style.cursor = 'pointer';
+
+                // Copy coordinates array.
+                const coordinates = e.features[0].geometry.coordinates.slice();
+                const description = e.features[0].properties.description;
+                const pic = e.features[0].properties.picture;
+                const type = e.features[0].properties.type;
+                const colorText = e.features[0].properties.colorText;
+                const schedule = e.features[0].properties.schedule;
+
+                let template = `
+                    <h4 style='color:${colorText}'>${type}</h4>
+                    <div style='text-align:center'>
+                        <img width='150' height='150' src="${pic}">
+                        </div>
+                        <h4>${schedule}</h4>
+                `
+
+                // Ensure that if the map is zoomed out such that multiple
+                // copies of the feature are visible, the popup appears
+                // over the copy being pointed to.
+                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                }
+
+                // Populate the popup and set its coordinates
+                // based on the feature found.
+                popup.setLngLat(coordinates).setHTML(template).addTo(map);
+            });
+
+            map.on('mouseleave', 'places', () => {
+                map.getCanvas().style.cursor = '';
+                popup.remove();
+            });
+        });
+
+
+        function toggleSidebar(id) {
+            const elem = document.getElementById(id);
+            // Add or remove the 'collapsed' CSS class from the sidebar element.
+            // Returns boolean "true" or "false" whether 'collapsed' is in the class list.
+            const collapsed = elem.classList.toggle('collapsed');
+            const padding = {};
+            // 'id' is 'right' or 'left'. When run at start, this object looks like: '{left: 300}';
+            padding[id] = collapsed ? 0 : 500; // 0 if collapsed, 300 px if not. This matches the width of the sidebars in the .sidebar CSS class.
+            // Use `map.easeTo()` with a padding option to adjust the map's center accounting for the position of sidebars.
+            map.easeTo({
+                padding: padding,
+                duration: 500 // In ms. This matches the CSS transition duration property.
+            });
+        }
+
+        // map.on('load', () => {
+        //     toggleSidebar('left');
+        // });
+    </script>
+    <!-- /Map Box function -->
+
+
+    <!-- Add categories Modal Body -->
+    <script>
+        let items = document.getElementById('q_items');
+        let limit = 3;
+
+
+
+        function OptionsSelected(me) {
+            console.log(me.id);
+        }
+        list.forEach(item => {
+            items.innerHTML += `<div class="col-lg-3 col-md-4 col-sm-4 col-4">
+                                    <div class='pizdes' style="text-align: center;">
+                                        <input onclick="return OptionsSelected(this)" type="checkbox" class="btn-check chch" id="q_item_` + list.indexOf(item) + `"
+                                            autocomplete="off">
+                                        <label id="knopka" class="btn btn-outline-danger btnModal"
+                                            for="q_item_` + list.indexOf(item) + `">
+                                            <div>
+                                                <svg viewBox="0 0 50 50">
+                                                <path d="` + item["icon"] + `" fill="rgba(112, 112, 112, 0.826)"></path>
+                                                </svg>
+                                            </div>
+                                        </label><br>
+                                    </div>
+
+                                    <div style="text-align: center;" class=" textModelContent">
+                                        <span style="color:grey"; "font-family: 'vdnh categories font';">` + item["title"] + `</span>
+                                    </div>
+                                </div>`;
+        })
+
+        function onlyOneCheckBox() {
+            var checkboxgroup = document.getElementById('q_items').getElementsByTagName("input");
+            console.log(checkboxgroup)
+            var limit = 5;
+            for (var i = 0; i < checkboxgroup.length; i++) {
+                checkboxgroup[i].onclick = function() {
+                    var checkedcount = 0;
+                    for (var i = 0; i < checkboxgroup.length; i++) {
+                        checkedcount += (checkboxgroup[i].checked) ? 1 : 0;
+                    }
+                    console.log(checkedcount)
+                    if (checkedcount > limit) {
+
+                        console.log("You can select maximum of " + limit + " checkbox.");
+
+                        this.checked = false;
+                    }
+                }
+            }
+        }
+        onlyOneCheckBox();
+    </script>
+    <!-- /Add categories Modal Body -->
+
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <!-- /Bootstrap JS -->
+
+
+    <!-- Navbar JS -->
+    <script src="./js/navbar.js"></script>
+    <!-- /Navbar JS -->
+
+
+    <!-- Modal Window open -->
+    <script type="text/javascript">
+        var myModal = new bootstrap.Modal(document.getElementById('exampleModal'), {})
+        myModal.toggle()
+    </script>
+    <!-- /Navbar Window open -->
+
+    <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+
+</html>
